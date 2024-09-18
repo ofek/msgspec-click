@@ -136,7 +136,7 @@ def _set_list(settings: dict[str, Any], field_type: inspect.Type) -> None:
         raise TypeError(message)
 
     settings['cls'] = ListOption
-    settings['type'] = ListParamType(click_type)
+    settings['type'] = click_type
     if 'nargs' not in settings:
         settings['multiple'] = True
 
@@ -192,6 +192,49 @@ def _set_var_tuple(settings: dict[str, Any], field_type: inspect.Type) -> None:
     settings['type'] = click.Tuple([click_type for _ in range(nargs)])
 
 
+def _set_dict(settings: dict[str, Any], field_type: inspect.Type) -> None:
+    assert isinstance(field_type, inspect.DictType)  # noqa: S101
+
+    if not isinstance(field_type.key_type, inspect.StrType):
+        message = 'only `str` keys are supported'
+        raise TypeError(message)
+
+    itype = type(field_type.value_type)
+    click_type: click.ParamType
+    if itype in {inspect.StrType, inspect.AnyType}:
+        click_type = click.STRING
+    elif itype is inspect.IntType:
+        click_type = click.INT
+    elif itype is inspect.FloatType:
+        click_type = click.FLOAT
+    elif itype is inspect.BoolType:
+        click_type = click.BOOL
+    else:
+        message = f'type of value is unsupported: {itype}'
+        raise TypeError(message)
+
+    settings['cls'] = DictOption
+    settings['type'] = click.Tuple([click.STRING, click_type])
+    settings['multiple'] = True
+
+
+def _set_typed_dict(settings: dict[str, Any], field_type: inspect.Type) -> None:
+    assert isinstance(field_type, inspect.TypedDictType)  # noqa: S101
+
+    keys: list[str] = []
+    for field in field_type.fields:
+        name = field.encode_name
+        if not isinstance(field.type, (inspect.StrType, inspect.AnyType)):
+            message = f'key `{name}` must have a `str` value type'
+            raise TypeError(message)
+
+        keys.append(name)
+
+    settings['cls'] = DictOption
+    settings['type'] = click.Tuple([click.Choice(keys), click.STRING])
+    settings['multiple'] = True
+
+
 def _set_literal(settings: dict[str, Any], field_type: inspect.Type) -> None:
     assert isinstance(field_type, inspect.LiteralType)  # noqa: S101
 
@@ -206,28 +249,25 @@ def _set_literal(settings: dict[str, Any], field_type: inspect.Type) -> None:
     settings['type'] = click.Choice(tuple(choices))
 
 
+class DictOption(click.Option):
+    def type_cast_value(self, ctx: click.Context, value: Any):  # no cov
+        return dict(super().type_cast_value(ctx, value))
+
+
 class ListOption(click.Option):
-    def type_cast_value(self, ctx: click.Context, value: Any) -> list[Any]:  # no cov
+    def type_cast_value(self, ctx: click.Context, value: Any):  # no cov
         return list(super().type_cast_value(ctx, value))
-
-
-class ListParamType(click.ParamType):
-    name = 'List'
-
-    def __init__(self, item_type: click.ParamType):
-        self._item_type = item_type
-
-    def convert(self, value: Any, param: click.Parameter | None, ctx: click.Context | None) -> Any:  # no cov
-        return self._item_type(value, param, ctx)
 
 
 SETTERS: dict[type[inspect.Type], Callable[[dict[str, Any], inspect.Type], None]] = {
     inspect.BoolType: _set_bool,
+    inspect.DictType: _set_dict,
     inspect.FloatType: _set_float,
     inspect.IntType: _set_int,
     inspect.ListType: _set_list,
     inspect.LiteralType: _set_literal,
     inspect.StrType: _set_str,
     inspect.TupleType: _set_tuple,
+    inspect.TypedDictType: _set_typed_dict,
     inspect.VarTupleType: _set_var_tuple,
 }
