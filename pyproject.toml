@@ -1,0 +1,61 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "msgspec-click"
+dynamic = ["version"]
+description = "Generate Click options from msgspec types"
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = [
+  "click",
+  "msgspec",
+]
+authors = [
+  { name = "Ofek Lev", email = "oss@ofek.dev" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = [
+  "click",
+  "msgspec",
+]
+
+[project.urls]
+Documentation = "https://github.com/ofek/msgspec-click#readme"
+Issues = "https://github.com/ofek/msgspec-click/issues"
+Source = "https://github.com/ofek/msgspec-click"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.coverage.run]
+source_pkgs = ["msgspec_click", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/msgspec_click/__about__.py",
+]
+
+[tool.coverage.paths]
+msgspec_click = ["src/msgspec_click", "*/msgspec-click/src/msgspec_click"]
+tests = ["tests", "*/msgspec-click/tests"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
