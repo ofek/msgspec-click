@@ -3,12 +3,21 @@
 # SPDX-License-Identifier: MIT
 from __future__ import annotations
 
-from typing import Annotated, Any, Literal, Union
+from typing import Annotated, Any, Literal, TypedDict, Union
 
 import pytest
 from msgspec import Meta, Struct
 
 from msgspec_click import generate_options
+
+
+class GoodTypedDict(TypedDict, total=False):
+    key1: str
+    key2: str
+
+
+class BadTypedDict(TypedDict, total=False):
+    key: int
 
 
 def test_unsupported_type() -> None:
@@ -376,7 +385,7 @@ class TestList:
             'prompt': None,
             'required': False,
             'secondary_opts': [],
-            'type': {'name': 'List', 'param_type': 'List'},
+            'type': {'name': 'text', 'param_type': 'String'},
         }
 
     def test_nargs(self) -> None:
@@ -401,7 +410,7 @@ class TestList:
             'prompt': None,
             'required': False,
             'secondary_opts': [],
-            'type': {'name': 'List', 'param_type': 'List'},
+            'type': {'name': 'text', 'param_type': 'String'},
         }
 
     def test_str(self) -> None:
@@ -426,7 +435,7 @@ class TestList:
             'prompt': None,
             'required': False,
             'secondary_opts': [],
-            'type': {'name': 'List', 'param_type': 'List'},
+            'type': {'name': 'text', 'param_type': 'String'},
         }
 
     def test_int(self) -> None:
@@ -451,7 +460,7 @@ class TestList:
             'prompt': None,
             'required': False,
             'secondary_opts': [],
-            'type': {'name': 'List', 'param_type': 'List'},
+            'type': {'name': 'integer', 'param_type': 'Int'},
         }
 
     def test_float(self) -> None:
@@ -476,7 +485,7 @@ class TestList:
             'prompt': None,
             'required': False,
             'secondary_opts': [],
-            'type': {'name': 'List', 'param_type': 'List'},
+            'type': {'name': 'float', 'param_type': 'Float'},
         }
 
     def test_bool(self) -> None:
@@ -501,7 +510,7 @@ class TestList:
             'prompt': None,
             'required': False,
             'secondary_opts': [],
-            'type': {'name': 'List', 'param_type': 'List'},
+            'type': {'name': 'boolean', 'param_type': 'Bool'},
         }
 
 
@@ -1015,6 +1024,270 @@ class TestVarTuple:
                     {
                         'name': 'boolean',
                         'param_type': 'Bool',
+                    },
+                ],
+            },
+        }
+
+
+class TestDict:
+    def test_unsupported_key_type(self) -> None:
+        class Example(Struct):
+            field: dict[int, str] = {}
+
+        with pytest.raises(
+            TypeError, match=r'^Error generating option for field `field`, only `str` keys are supported$'
+        ):
+            generate_options(Example)
+
+    def test_unsupported_value_type(self) -> None:
+        class Example(Struct):
+            field: dict[str, set] = {}
+
+        with pytest.raises(
+            TypeError, match=r'^Error generating option for field `field`, type of value is unsupported:'
+        ):
+            generate_options(Example)
+
+    def test_any(self) -> None:
+        class Example(Struct):
+            field: dict[str, Any] = {}
+
+        options = generate_options(Example)
+        assert len(options) == 1
+        assert options[0].to_info_dict() == {
+            'count': False,
+            'default': None,
+            'envvar': None,
+            'flag_value': True,
+            'help': None,
+            'hidden': False,
+            'is_flag': False,
+            'multiple': True,
+            'name': 'field',
+            'nargs': 2,
+            'opts': ['--field'],
+            'param_type_name': 'option',
+            'prompt': None,
+            'required': False,
+            'secondary_opts': [],
+            'type': {
+                'name': '<text text>',
+                'param_type': 'Tuple',
+                'types': [
+                    {
+                        'name': 'text',
+                        'param_type': 'String',
+                    },
+                    {
+                        'name': 'text',
+                        'param_type': 'String',
+                    },
+                ],
+            },
+        }
+
+    def test_str(self) -> None:
+        class Example(Struct):
+            field: dict[str, str] = {}
+
+        options = generate_options(Example)
+        assert len(options) == 1
+        assert options[0].to_info_dict() == {
+            'count': False,
+            'default': None,
+            'envvar': None,
+            'flag_value': True,
+            'help': None,
+            'hidden': False,
+            'is_flag': False,
+            'multiple': True,
+            'name': 'field',
+            'nargs': 2,
+            'opts': ['--field'],
+            'param_type_name': 'option',
+            'prompt': None,
+            'required': False,
+            'secondary_opts': [],
+            'type': {
+                'name': '<text text>',
+                'param_type': 'Tuple',
+                'types': [
+                    {
+                        'name': 'text',
+                        'param_type': 'String',
+                    },
+                    {
+                        'name': 'text',
+                        'param_type': 'String',
+                    },
+                ],
+            },
+        }
+
+    def test_int(self) -> None:
+        class Example(Struct):
+            field: dict[str, int] = {}
+
+        options = generate_options(Example)
+        assert len(options) == 1
+        assert options[0].to_info_dict() == {
+            'count': False,
+            'default': None,
+            'envvar': None,
+            'flag_value': True,
+            'help': None,
+            'hidden': False,
+            'is_flag': False,
+            'multiple': True,
+            'name': 'field',
+            'nargs': 2,
+            'opts': ['--field'],
+            'param_type_name': 'option',
+            'prompt': None,
+            'required': False,
+            'secondary_opts': [],
+            'type': {
+                'name': '<text integer>',
+                'param_type': 'Tuple',
+                'types': [
+                    {
+                        'name': 'text',
+                        'param_type': 'String',
+                    },
+                    {
+                        'name': 'integer',
+                        'param_type': 'Int',
+                    },
+                ],
+            },
+        }
+
+    def test_float(self) -> None:
+        class Example(Struct):
+            field: dict[str, float] = {}
+
+        options = generate_options(Example)
+        assert len(options) == 1
+        assert options[0].to_info_dict() == {
+            'count': False,
+            'default': None,
+            'envvar': None,
+            'flag_value': True,
+            'help': None,
+            'hidden': False,
+            'is_flag': False,
+            'multiple': True,
+            'name': 'field',
+            'nargs': 2,
+            'opts': ['--field'],
+            'param_type_name': 'option',
+            'prompt': None,
+            'required': False,
+            'secondary_opts': [],
+            'type': {
+                'name': '<text float>',
+                'param_type': 'Tuple',
+                'types': [
+                    {
+                        'name': 'text',
+                        'param_type': 'String',
+                    },
+                    {
+                        'name': 'float',
+                        'param_type': 'Float',
+                    },
+                ],
+            },
+        }
+
+    def test_bool(self) -> None:
+        class Example(Struct):
+            field: dict[str, bool] = {}
+
+        options = generate_options(Example)
+        assert len(options) == 1
+        assert options[0].to_info_dict() == {
+            'count': False,
+            'default': None,
+            'envvar': None,
+            'flag_value': True,
+            'help': None,
+            'hidden': False,
+            'is_flag': False,
+            'multiple': True,
+            'name': 'field',
+            'nargs': 2,
+            'opts': ['--field'],
+            'param_type_name': 'option',
+            'prompt': None,
+            'required': False,
+            'secondary_opts': [],
+            'type': {
+                'name': '<text boolean>',
+                'param_type': 'Tuple',
+                'types': [
+                    {
+                        'name': 'text',
+                        'param_type': 'String',
+                    },
+                    {
+                        'name': 'boolean',
+                        'param_type': 'Bool',
+                    },
+                ],
+            },
+        }
+
+
+class TestTypedDict:
+    def test_unsupported_value_type(self) -> None:
+        class Example(Struct):
+            field: BadTypedDict = {}
+
+        with pytest.raises(
+            TypeError, match=r'^Error generating option for field `field`, key `key` must have a `str` value type$'
+        ):
+            generate_options(Example)
+
+    def test_type(self) -> None:
+        class Example(Struct):
+            field: GoodTypedDict = {}
+
+        options = generate_options(Example)
+        assert len(options) == 1
+        assert options[0].to_info_dict() == {
+            'count': False,
+            'default': None,
+            'envvar': None,
+            'flag_value': True,
+            'help': None,
+            'hidden': False,
+            'is_flag': False,
+            'multiple': True,
+            'name': 'field',
+            'nargs': 2,
+            'opts': ['--field'],
+            'param_type_name': 'option',
+            'prompt': None,
+            'required': False,
+            'secondary_opts': [],
+            'type': {
+                'name': '<choice text>',
+                'param_type': 'Tuple',
+                'types': [
+                    {
+                        'case_sensitive': True,
+                        'choices': [
+                            'key1',
+                            'key2',
+                        ],
+                        'name': 'choice',
+                        'param_type': 'Choice',
+                    },
+                    {
+                        'name': 'text',
+                        'param_type': 'String',
                     },
                 ],
             },

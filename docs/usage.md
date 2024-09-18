@@ -101,8 +101,10 @@ If the `default` key is set then it is used as the default value for the option 
 
 | Type | Behavior |
 | --- | --- |
-| [`list`][] | The `type` is set to a [`click.Option`][] subclass that only converts the final value to the proper type. If the `nargs` setting is not defined then `multiple` will be set to `True`. All of the [primitive types](#primitive-types) are supported as items. If the item type is not defined or is [`typing.Any`][] then the type is considered [`str`][]. |
+| [`list`][] | The `type` key is set to item type and the `cls` is set to a [`click.Option`][] subclass that only converts the final value to the proper type. If the `nargs` setting is not defined then `multiple` will be set to `True`. All of the [primitive types](#primitive-types) are supported as items. If the item type is not defined or is [`typing.Any`][] then the type is considered [`str`][]. |
 | [`tuple`][] | Both standard and variadic forms are supported. If the standard form (e.g. `tuple[str, int]`) is used then the `type` key is set to [`click.Tuple`][] and `nargs` is set to the number of items. If the variadic form (e.g. `tuple[str, ...]`) is used then the `type` key is set to [`click.Tuple`][], and the `nargs` key must already be defined. All of the [primitive types](#primitive-types) are supported as items. If an item type is not defined or is [`typing.Any`][] then the type is considered [`str`][]. |
+| [`dict`][] | The `type` key is set to [`click.Tuple`][] with the type of the key and value, `multiple` is set to `True` and the `cls` is set to a [`click.Option`][] subclass that only converts the final value to the proper type. The key type must be [`str`][] but values support all of the [primitive types](#primitive-types). If the value type is [`typing.Any`][] then the type is considered [`str`][]. |
+| [`TypedDict`][typing.TypedDict] | The `type` key is set to a 2-ary [`click.Tuple`][] with the first item being a [`click.Choice`][] constructed from the keys of the dictionary and the second item set to [`str`][]. As such, the type of each value in the [`typing.TypedDict`][] must be [`str`][]. The `multiple` key is set to `True` and the `cls` is set to a [`click.Option`][] subclass that only converts the final value to the proper type. |
 
 ### Complex types
 
