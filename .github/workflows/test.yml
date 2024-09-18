@@ -47,10 +47,44 @@ jobs:
     - name: Run tests
       run: hatch test --python ${{ matrix.python-version }} --cover-quiet --randomize
 
+    - name: Create coverage report
+      run: hatch run hatch-test.py${{ matrix.python-version }}:coverage xml
+
+    - name: Upload coverage data
+      uses: actions/upload-artifact@v4
+      with:
+        include-hidden-files: true
+        name: coverage-${{ matrix.os }}-${{ matrix.python-version }}
+        path: coverage.xml
+
+  coverage:
+    name: Upload coverage
+    needs:
+    - run
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+    - name: Download coverage data
+      uses: actions/download-artifact@v4
+      with:
+        pattern: coverage-*
+        path: coverage_data
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        directory: coverage_data
+        use_oidc: true
+
   check:
     if: always()
     needs:
     - run
+    - coverage
     runs-on: ubuntu-latest
 
     steps:
