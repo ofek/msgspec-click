@@ -1,0 +1,11 @@
+extend = "ruff_defaults.toml"
+
+[format]
+preview = true
+quote-style = "single"
+
+[lint]
+preview = true
+
+[lint.extend-per-file-ignores]
+"tests/test_options.py" = ["FURB152"]
