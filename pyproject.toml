@@ -33,8 +33,10 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/ofek/msgspec-click#readme"
-Issues = "https://github.com/ofek/msgspec-click/issues"
+Homepage = "https://ofek.dev/msgspec-click/"
+Sponsor = "https://github.com/sponsors/ofek"
+Changelog = "https://ofek.dev/msgspec-click/changelog/"
+Tracker = "https://github.com/ofek/msgspec-click/issues"
 Source = "https://github.com/ofek/msgspec-click"
 
 [tool.hatch.version]
