@@ -9,7 +9,7 @@
 
 -----
 
-This is a library for generating [Click](https://github.com/pallets/click) options from [msgspec](https://github.com/jcrist/msgspec) types.
+This is a library for generating [Click](https://github.com/pallets/click) options from [msgspec](https://github.com/jcrist/msgspec) types (see [example](usage.md#example)).
 
 ## Installation
 
