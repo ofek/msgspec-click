@@ -13,7 +13,7 @@ Here, we illustrate how to use the [`generate_options`][msgspec_click.generate_o
     from typing import Annotated
 
     import click
-    from msgspec import Meta, Struct
+    from msgspec import Meta, Struct, convert
     from msgspec_click import generate_options
 
 
@@ -46,7 +46,7 @@ Here, we illustrate how to use the [`generate_options`][msgspec_click.generate_o
 
     @click.command()
     def command(**kwargs) -> None:
-        connection = Connection(**kwargs)
+        connection = convert(kwargs, Connection)
         print(connection)
 
 
